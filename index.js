@@ -30,20 +30,34 @@ async function run() {
     const cartCollection = client
       .db("restaurantCalifornia")
       .collection("carts");
+    const usersCollection = client
+      .db("restaurantCalifornia")
+      .collection("users");
+
+    // user related apis
+    // If user exist after login through social login, it won't save data to database
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+      const query = { email: user.email };
+      const existingUser = await usersCollection.findOne(query);
+      if (existingUser) {
+        return res.send({ message: "user already exists" });
+      }
+      const result = await usersCollection.insertOne(user);
+      res.send(result);
+    });
+    // menu related apis
     app.get("/menu", async (req, res) => {
       const result = await menuCollection.find().toArray();
       res.send(result);
     });
-    app.get("/menu", async (req, res) => {
-      const result = await menuCollection.find().toArray();
-      res.send(result);
-    });
+    // review related apis
     app.get("/reviews", async (req, res) => {
       const result = await reviewCollection.find().toArray();
       res.send(result);
     });
 
-    // Cart collections api
+    // Cart related apis
     app.post("/carts", async (req, res) => {
       const item = req.body;
       const result = await cartCollection.insertOne(item);
