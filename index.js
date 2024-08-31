@@ -35,6 +35,15 @@ async function run() {
       .db("restaurantCalifornia")
       .collection("users");
 
+    // jsonwebtoken related api
+    app.post("/jwt", (req, res) => {
+      const user = req.body;
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: "1h",
+      });
+      res.send({ token });
+    });
+
     // users related apis
     // If user exist after login through social login, it won't save data to database
     app.post("/users", async (req, res) => {
@@ -52,6 +61,7 @@ async function run() {
       res.send(result);
     });
     // Search mongodb usage examples to know how to update a document
+    // set normal user to admin role
     app.patch("/users/admin/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
